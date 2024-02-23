@@ -80,13 +80,15 @@ class SmtpClientService:
             message.attach(self._create_file_attachment(mail.filepath, mail.filename))
         return message
 
-    def _create_main_body_message(self, html_msg):
+    @staticmethod
+    def _create_main_body_message(html_msg):
         return MIMEText(html_msg.encode("utf-8"), "html", "utf-8")
 
-    def _create_file_attachment(self, filepath, filename):
-        file = open(filepath, "rb")
-        file_attribute = MIMEApplication(file.read(), _subtype="csv")
-        file.close()
+    @staticmethod
+    def _create_file_attachment(filepath, filename):
+        with open(filepath, "rb") as file:
+            file_attribute = MIMEApplication(file.read(), _subtype="csv")
+
         file_attribute.add_header(
             "Content-Disposition", "attachment", filename=filename
         )
