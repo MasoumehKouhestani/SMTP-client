@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from smtp import SmtpService
+from smtp_client import SmtpClientService
 from imap_tools import MailBoxUnencrypted
 from imap_tools.message import MailMessage
 
@@ -12,7 +12,7 @@ def read_last_mail(username, password, host='localhost', port=3143) -> MailMessa
 
 class SMTPClientTest(TestCase):
     def test_smtp_client(self):
-        service = SmtpService()
+        service = SmtpClientService()
 
         subject = "test subject"
         receiver = "receiver@example.com"
