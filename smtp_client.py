@@ -55,8 +55,9 @@ class SmtpClientService:
         return smtp_connection
 
     def send_email(self, mail, quite_connection=True):
-        messages = [self._create_message(mail, receiver) for receiver in mail.receivers]
-        self._send_mail(messages)
+        for receiver in mail.receivers:
+            message = self._create_message(mail, receiver)
+            self._send_message(message)
         if quite_connection:
             self.quite()
 
@@ -91,15 +92,15 @@ class SmtpClientService:
         )
         return file_attribute
 
-    def _send_mail(self, messages):
-        current_retry = 0
-        for message in messages:
+    def _send_message(self, message):
+        current_try = 0
+        while current_try <= self.max_retry:
             try:
+                current_try += 1
                 self.smtp_connection.send_message(message, message["From"], [message["To"]])
-                current_retry = 0
+                return
             except smtplib.SMTPResponseException as e:
-                if e.smtp_code == 454 and current_retry < self.max_retry:
-                    current_retry += 1
+                if e.smtp_code == 454 and current_try < self.max_retry:
                     sleep(1)
                     continue
                 raise e

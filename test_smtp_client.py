@@ -61,14 +61,14 @@ class SMTPClientTest(TestCase):
         failure_code = 454
         failure_message = "Connection refused!"
         with patch.object(smtplib.SMTP, 'send_message',
-                          side_effect=smtplib.SMTPResponseException(failure_code, failure_message)):
-            with pytest.raises(smtplib.SMTPResponseException) as reached_max_retry_send:
+                          side_effect=smtplib.SMTPResponseException(failure_code, failure_message)
+                          ) as mock_send_message:
+            with self.assertRaises(smtplib.SMTPResponseException) as e:
                 service = SmtpClientService()
 
-                max_retry = settings.DEFAULT_EMAIL_CONFIG['max_retry']
-                receivers = [self.receiver] * (max_retry + 1)
+                receivers = [self.receiver]
                 mail = Email(self.subject, receivers, self.html_msg)
                 service.send_email(mail)
-
             exception_message = "({}, '{}')".format(failure_code, failure_message)
-            self.assertEqual(exception_message, str(reached_max_retry_send.value))
+            self.assertEqual(exception_message, str(e.exception))
+            self.assertEqual(settings.DEFAULT_EMAIL_CONFIG["max_retry"], mock_send_message.call_count)
