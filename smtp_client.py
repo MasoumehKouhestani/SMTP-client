@@ -40,41 +40,42 @@ class SmtpClientService:
 
     def send_email(self, mail: Email, quite_connection=True):
         # Create a text/plain message
-        msgs = []
-        for i, addr in enumerate(mail.receivers):
-            msg = MIMEMultipart()
-            msg['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
-            msg['From'] = self.from_email
-            msg['To'] = addr
+        messages = []
+        for _, receiver in enumerate(mail.receivers):
+            message = MIMEMultipart()
+            message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
+            message['From'] = self.from_email
+            message['To'] = receiver
 
             # Add AWS headers
             if self.provider == 'AWS':
                 if settings.SES_CONFIGURATION_SET:
-                    msg['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
+                    message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
 
             # The main body is just another attachment
             body = MIMEText(mail.html_msg.encode('utf-8'), 'html', 'utf-8')
-            msg.attach(body)
+            message.attach(body)
+
             if mail.filepath:
                 # PDF attachment
-                fp = open(mail.filepath, 'rb')
-                att = MIMEApplication(fp.read(), _subtype="csv")
-                fp.close()
-                att.add_header(
+                file = open(mail.filepath, 'rb')
+                file_attribute = MIMEApplication(file.read(), _subtype="csv")
+                file.close()
+                file_attribute.add_header(
                     'Content-Disposition',
                     'attachment',
                     filename=mail.filename
                 )
-                msg.attach(att)
-            msgs.append(msg)
+                message.attach(file_attribute)
+            messages.append(message)
 
         # send via Gmail server
         i = 0
         current_retry = 0
-        while i < len(msgs):
-            msg = msgs[i]
+        while i < len(messages):
+            message = messages[i]
             try:
-                self.smtp_connection.sendmail(msg['From'], [msg['To']], msg.as_string())
+                self.smtp_connection.sendmail(message['From'], [message['To']], message.as_string())
                 current_retry = 0
                 i += 1
             except smtplib.SMTPResponseException as e:
