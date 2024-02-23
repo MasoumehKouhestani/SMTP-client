@@ -24,7 +24,7 @@ class SMTPClientTest(TestCase):
         reply_email = "another@mail.com"
         service = SmtpClientService(reply_email=reply_email)
 
-        file_path = "test_data/test.csv"
+        file_path = "tests/test_data/test.csv"
         file_name = "test.csv"
         mail = Email(self.subject, [self.receiver], self.html_msg, file_path, file_name)
         service.send_email(mail)
