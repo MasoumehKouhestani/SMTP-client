@@ -1,5 +1,1 @@
 Django==4.2.10
-imap_tools==1.5.0
-black==24.2.0
-ruff==0.2.2
-pytest==8.0.1
