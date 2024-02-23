@@ -13,10 +13,7 @@ from models import Email
 
 class SmtpClientService:
 
-    required_config_fields = ['username', 'password', 'host', 'port']
-
     def __init__(self, from_email=settings.DEFAULT_FROM_EMAIL, reply_email=None, config=settings.DEFAULT_EMAIL_CONFIG):
-
         self.from_email = from_email
         self.reply_email = reply_email
         self.provider = config.get('provider')
