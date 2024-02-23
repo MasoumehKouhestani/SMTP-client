@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils.encoding import force_str
 
 
-class SmtpClientService(object):
+class SmtpClientService:
 
     max_retry = 2
     required_config_fields = ['username', 'password', 'host', 'port']
