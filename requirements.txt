@@ -1,1 +1,2 @@
 Django==4.2.10
+imap_tools==1.5.0
