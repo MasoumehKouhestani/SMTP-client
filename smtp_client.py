@@ -8,6 +8,8 @@ from time import sleep
 from django.conf import settings
 from django.utils.encoding import force_str
 
+from models import Email
+
 
 class SmtpClientService:
 
@@ -36,18 +38,17 @@ class SmtpClientService:
     def authenticate(self, smtp_connection):
         smtp_connection.login(self.username, self.password)
 
-    def send_email(self, subject, receiver, html_msg, filepath=None, filename=None, quite_connection=True, meta_data=None):
-
+    def send_email(self, mail: Email, quite_connection=True):
         # create the meta data
-        meta_data = meta_data or []
+        meta_data = mail.meta_data or []
         if type(meta_data) not in (tuple, list):
             meta_data = [meta_data]
 
         # Create a text/plain message
         msgs = []
-        for i, addr in enumerate(receiver):
+        for i, addr in enumerate(mail.receivers):
             msg = MIMEMultipart()
-            msg['Subject'] = email.header.Header(force_str(subject), 'utf-8')
+            msg['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
             msg['From'] = self.from_email
             msg['To'] = addr
 
@@ -57,17 +58,17 @@ class SmtpClientService:
                     msg['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
 
             # The main body is just another attachment
-            body = MIMEText(html_msg.encode('utf-8'), 'html', 'utf-8')
+            body = MIMEText(mail.html_msg.encode('utf-8'), 'html', 'utf-8')
             msg.attach(body)
-            if filepath:
+            if mail.filepath:
                 # PDF attachment
-                fp = open(filepath, 'rb')
+                fp = open(mail.filepath, 'rb')
                 att = MIMEApplication(fp.read(), _subtype="csv")
                 fp.close()
                 att.add_header(
                     'Content-Disposition',
                     'attachment',
-                    filename=filename
+                    filename=mail.filename
                 )
                 msg.attach(att)
             msgs.append(msg)

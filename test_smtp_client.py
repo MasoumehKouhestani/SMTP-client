@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from models import Email
 from smtp_client import SmtpClientService
 from imap_tools import MailBoxUnencrypted
 from imap_tools.message import MailMessage
@@ -19,11 +20,8 @@ class SMTPClientTest(TestCase):
         html_msg = "sample message"
         file_path = "test_data/test.csv"
         file_name = "test.csv"
-        service.send_email(subject=subject,
-                           receiver=[receiver],
-                           html_msg=html_msg,
-                           filepath=file_path,
-                           filename=file_name)
+        mail = Email(subject, [receiver], html_msg, file_path, file_name)
+        service.send_email(mail)
 
         mail = read_last_mail(username=receiver, password=receiver)
 
