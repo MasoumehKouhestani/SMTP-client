@@ -12,7 +12,7 @@ from models import Email
 
 
 class SmtpClientService:
-    max_retry = 2
+
     required_config_fields = ['username', 'password', 'host', 'port']
 
     def __init__(self, from_email=settings.DEFAULT_FROM_EMAIL, reply_email=None, config=settings.DEFAULT_EMAIL_CONFIG):
@@ -20,6 +20,7 @@ class SmtpClientService:
         self.from_email = from_email
         self.reply_email = reply_email
         self.provider = config.get('provider')
+        self.max_retry = config.get('max_retry')
 
         self.username = config['username']
         self.password = config['password']
@@ -41,9 +42,7 @@ class SmtpClientService:
         messages = []
         for _, receiver in enumerate(mail.receivers):
             messages.append(self._create_message(mail, receiver))
-
         self._send_mail(messages)
-
         if quite_connection:
             self.quite()
 
@@ -52,17 +51,14 @@ class SmtpClientService:
         message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
         message['From'] = self.from_email
         message['To'] = receiver
-
         # Add AWS headers
         if self.provider == 'AWS':
             if settings.SES_CONFIGURATION_SET:
                 message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
 
         message.attach(self._create_main_body_message(mail.html_msg))
-
         if mail.filepath:
             message.attach(self._create_file_attachment(mail.filepath, mail.filename))
-
         return message
 
     def _create_main_body_message(self, html_msg):

@@ -46,6 +46,7 @@ DEFAULT_EMAIL_CONFIG = {
     'host': 'localhost',
     'port': 3025,
     'tls': False,
+    'max_retry': 2,
 }
 
 SES_CONFIGURATION_SET = "example_config_name"
