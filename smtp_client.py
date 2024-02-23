@@ -23,15 +23,15 @@ class SmtpClientService:
         self.username = config['username']
         self.password = config['password']
 
-        self.s = self.connect(config)
+        self.smtp_connection = self.connect(config)
 
     def connect(self, config):
-        s = smtplib.SMTP(config['host'], config['port'])
+        smtp_connection = smtplib.SMTP(config['host'], config['port'])
         if config.get('tls', True):
-            s.starttls()
-        self.authenticate(s)
+            smtp_connection.starttls()
+        self.authenticate(smtp_connection)
 
-        return s
+        return smtp_connection
 
     def authenticate(self, s):
         s.login(self.username, self.password)
@@ -78,7 +78,7 @@ class SmtpClientService:
         while i < len(msgs):
             msg = msgs[i]
             try:
-                self.s.sendmail(msg['From'], [msg['To']], msg.as_string())
+                self.smtp_connection.sendmail(msg['From'], [msg['To']], msg.as_string())
                 current_retry = 0
                 i += 1
             except smtplib.SMTPResponseException as e:
@@ -92,4 +92,4 @@ class SmtpClientService:
             self.quite()
 
     def quite(self):
-        self.s.quit()
+        self.smtp_connection.quit()
