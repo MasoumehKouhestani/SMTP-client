@@ -65,7 +65,9 @@ class SMTPClientTest(TestCase):
             with pytest.raises(smtplib.SMTPResponseException) as reached_max_retry_send:
                 service = SmtpClientService()
 
-                mail = Email(self.subject, [self.receiver, self.receiver, self.receiver], self.html_msg)
+                max_retry = settings.DEFAULT_EMAIL_CONFIG['max_retry']
+                receivers = [self.receiver] * (max_retry + 1)
+                mail = Email(self.subject, receivers, self.html_msg)
                 service.send_email(mail)
 
             self.assertEqual("(454, 'Connection refused!')", str(reached_max_retry_send.value))
