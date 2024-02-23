@@ -16,9 +16,9 @@ class SmtpClientService:
 
     def __init__(self, from_email=settings.DEFAULT_FROM_EMAIL, reply_email=None, config=settings.DEFAULT_EMAIL_CONFIG):
 
-        self.provider = config.get('provider')
         self.from_email = from_email
         self.reply_email = reply_email
+        self.provider = config.get('provider')
 
         self.username = config['username']
         self.password = config['password']
