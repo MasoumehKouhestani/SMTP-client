@@ -3,8 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import settings
-from models import Email
-from smtp_client import SmtpClientService
+from smtp_client import SmtpClientService, Email
 from imap_tools import MailBoxUnencrypted
 from imap_tools.message import MailMessage
 
@@ -18,10 +17,9 @@ def read_last_mail(username, password, host="localhost", port=3143) -> MailMessa
 
 class SMTPClientTest(TestCase):
 
-    def setUp(self):
-        self.subject = "test subject"
-        self.receiver = "receiver@example.com"
-        self.html_msg = "sample message"
+    subject = "test subject"
+    receiver = "receiver@example.com"
+    html_msg = "sample message"
 
     def test_smtp_client(self):
         reply_email = "another@mail.com"
@@ -62,7 +60,7 @@ class SMTPClientTest(TestCase):
     def test_smtp_client_fail_sending_more_than_max_retry(self):
         failure_code = 454
         failure_message = "Connection refused!"
-        with patch.object(smtplib.SMTP, 'sendmail',
+        with patch.object(smtplib.SMTP, 'send_message',
                           side_effect=smtplib.SMTPResponseException(failure_code, failure_message)):
             with pytest.raises(smtplib.SMTPResponseException) as reached_max_retry_send:
                 service = SmtpClientService()
