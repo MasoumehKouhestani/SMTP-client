@@ -23,10 +23,18 @@ class SmtpClientService:
         self.username = config['username']
         self.password = config['password']
 
-        self.s = smtplib.SMTP(config['host'], config['port'])
+        self.s = self.connect(config)
+
+    def connect(self, config):
+        s = smtplib.SMTP(config['host'], config['port'])
         if config.get('tls', True):
-            self.s.starttls()
-        self.s.login(self.username, self.password)
+            s.starttls()
+        self.authenticate(s)
+
+        return s
+
+    def authenticate(self, s):
+        s.login(self.username, self.password)
 
     def send_email(self, subject, receiver, html_msg, filepath=None, filename=None, q=True, md=None):
 
