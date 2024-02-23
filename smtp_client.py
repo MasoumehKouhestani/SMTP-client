@@ -25,17 +25,17 @@ class SmtpClientService:
         self.username = config['username']
         self.password = config['password']
 
-        self.smtp_connection = self.connect(config)
+        self.smtp_connection = self._connect(config)
 
-    def connect(self, config):
+    def _connect(self, config):
         smtp_connection = smtplib.SMTP(config['host'], config['port'])
         if config.get('tls', True):
             smtp_connection.starttls()
-        self.authenticate(smtp_connection)
+        self._authenticate(smtp_connection)
 
         return smtp_connection
 
-    def authenticate(self, smtp_connection):
+    def _authenticate(self, smtp_connection):
         smtp_connection.login(self.username, self.password)
 
     def send_email(self, mail: Email, quite_connection=True):
