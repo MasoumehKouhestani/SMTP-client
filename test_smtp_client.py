@@ -1,3 +1,4 @@
+import csv
 from unittest import TestCase
 
 from models import Email
@@ -30,4 +31,6 @@ class SMTPClientTest(TestCase):
         self.assertEqual(html_msg, mail.html)
         self.assertEqual(1, len(mail.attachments))
         self.assertEqual(file_name, mail.attachments[0].filename)
-        self.assertEqual(b"c1,c2", mail.attachments[0].payload) # TODO: read from file
+        file = open(file_path, 'r')
+        file_content = ''.join(file.readlines())
+        self.assertEqual(bytes(file_content, 'utf-8'), mail.attachments[0].payload)
