@@ -14,7 +14,8 @@ def read_last_mail(username, password, host='localhost', port=3143) -> MailMessa
 
 class SMTPClientTest(TestCase):
     def test_smtp_client(self):
-        service = SmtpClientService()
+        reply_email = "another@mail.com"
+        service = SmtpClientService(reply_email=reply_email)
 
         subject = "test subject"
         receiver = "receiver@example.com"
@@ -34,3 +35,5 @@ class SMTPClientTest(TestCase):
         file = open(file_path, 'r')
         file_content = ''.join(file.readlines())
         self.assertEqual(bytes(file_content, 'utf-8'), mail.attachments[0].payload)
+        self.assertEqual(1, len(mail.headers.get('reply-to')))
+        self.assertEqual(reply_email, mail.headers.get('reply-to')[0])

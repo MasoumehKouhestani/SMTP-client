@@ -48,6 +48,8 @@ class SmtpClientService:
         message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
         message['From'] = self.from_email
         message['To'] = receiver
+        if self.reply_email:
+            message.add_header('reply-to', self.reply_email)
         # Add AWS headers
         if self.provider == 'AWS':
             if settings.SES_CONFIGURATION_SET:
