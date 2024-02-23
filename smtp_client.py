@@ -33,8 +33,8 @@ class SmtpClientService:
 
         return smtp_connection
 
-    def authenticate(self, s):
-        s.login(self.username, self.password)
+    def authenticate(self, smtp_connection):
+        smtp_connection.login(self.username, self.password)
 
     def send_email(self, subject, receiver, html_msg, filepath=None, filename=None, quite_connection=True, meta_data=None):
 
