@@ -57,11 +57,17 @@ class SmtpClientService:
         if quite_connection:
             self.quite()
 
-    def _create_message(self, mail, receiver):
+    def _create_message(self, mail, receiver, meta_data=None):
+
+        meta_data = meta_data or []
+        if type(meta_data) not in (tuple, list):
+            meta_data = [meta_data]
+
         message = MIMEMultipart()
         message["Subject"] = email.header.Header(force_str(mail.subject), "utf-8")
         message["From"] = self.from_email
         message["To"] = receiver
+        message.add_header("meta-data", force_str(meta_data))
         if self.reply_email:
             message.add_header("reply-to", self.reply_email)
         # Add AWS headers
