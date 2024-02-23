@@ -12,7 +12,6 @@ from models import Email
 
 
 class SmtpClientService:
-
     max_retry = 2
     required_config_fields = ['username', 'password', 'host', 'port']
 
@@ -53,26 +52,32 @@ class SmtpClientService:
         message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
         message['From'] = self.from_email
         message['To'] = receiver
+
         # Add AWS headers
         if self.provider == 'AWS':
             if settings.SES_CONFIGURATION_SET:
                 message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
+
         # The main body is just another attachment
         body = MIMEText(mail.html_msg.encode('utf-8'), 'html', 'utf-8')
         message.attach(body)
+
         if mail.filepath:
-            # PDF attachment
-            file = open(mail.filepath, 'rb')
-            file_attribute = MIMEApplication(file.read(), _subtype="csv")
-            file.close()
-            file_attribute.add_header(
-                'Content-Disposition',
-                'attachment',
-                filename=mail.filename
-            )
+            file_attribute = self._create_file_attachment(mail.filepath, mail.filename)
             message.attach(file_attribute)
 
         return message
+
+    def _create_file_attachment(self, filepath, filename):
+        file = open(filepath, 'rb')
+        file_attribute = MIMEApplication(file.read(), _subtype="csv")
+        file.close()
+        file_attribute.add_header(
+            'Content-Disposition',
+            'attachment',
+            filename=filename
+        )
+        return file_attribute
 
     def _send_mail(self, messages):
         current_retry = 0
