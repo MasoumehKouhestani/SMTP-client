@@ -61,8 +61,7 @@ class SmtpClientService:
         message.attach(self._create_main_body_message(mail.html_msg))
 
         if mail.filepath:
-            file_attribute = self._create_file_attachment(mail.filepath, mail.filename)
-            message.attach(file_attribute)
+            message.attach(self._create_file_attachment(mail.filepath, mail.filename))
 
         return message
 
