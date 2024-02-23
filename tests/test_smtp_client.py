@@ -20,9 +20,19 @@ class SMTPClientTest(TestCase):
     receiver = "receiver@example.com"
     html_msg = "sample message"
 
+    DEFAULT_EMAIL_CONFIG = {
+        "provider": "AWS",
+        "username": "user",
+        "password": "password",
+        "host": "localhost",
+        "port": 3025,
+        "tls": False,
+        "max_retry": 2,
+    }
+
     def test_smtp_client(self):
         reply_email = "another@mail.com"
-        service = SmtpClientService(reply_email=reply_email)
+        service = SmtpClientService(reply_email=reply_email, config=self.DEFAULT_EMAIL_CONFIG)
 
         file_path = "tests/test_data/test.csv"
         file_name = "test.csv"
@@ -44,7 +54,7 @@ class SMTPClientTest(TestCase):
         self.assertEqual(settings.SES_CONFIGURATION_SET, mail.headers.get("X-SES-CONFIGURATION-SET".lower())[0])
 
     def test_smtp_client_with_no_attachments(self):
-        service = SmtpClientService()
+        service = SmtpClientService(config=self.DEFAULT_EMAIL_CONFIG)
 
         mail = Email(self.subject, [self.receiver], self.html_msg)
         service.send_email(mail)
@@ -63,11 +73,11 @@ class SMTPClientTest(TestCase):
             smtplib.SMTP, "send_message", side_effect=smtplib.SMTPResponseException(failure_code, failure_message)
         ) as mock_send_message:
             with self.assertRaises(smtplib.SMTPResponseException) as e:
-                service = SmtpClientService()
+                service = SmtpClientService(config=self.DEFAULT_EMAIL_CONFIG)
 
                 receivers = [self.receiver]
                 mail = Email(self.subject, receivers, self.html_msg)
                 service.send_email(mail)
             exception_message = "({}, '{}')".format(failure_code, failure_message)
             self.assertEqual(exception_message, str(e.exception))
-            self.assertEqual(settings.DEFAULT_EMAIL_CONFIG["max_retry"], mock_send_message.call_count)
+            self.assertEqual(self.DEFAULT_EMAIL_CONFIG["max_retry"], mock_send_message.call_count)
