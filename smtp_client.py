@@ -36,12 +36,12 @@ class SmtpClientService:
     def authenticate(self, s):
         s.login(self.username, self.password)
 
-    def send_email(self, subject, receiver, html_msg, filepath=None, filename=None, q=True, md=None):
+    def send_email(self, subject, receiver, html_msg, filepath=None, filename=None, quite_connection=True, meta_data=None):
 
         # create the meta data
-        md = md or []
-        if type(md) not in (tuple, list):
-            md = [md]
+        meta_data = meta_data or []
+        if type(meta_data) not in (tuple, list):
+            meta_data = [meta_data]
 
         # Create a text/plain message
         msgs = []
@@ -88,7 +88,7 @@ class SmtpClientService:
                     continue
                 raise e
 
-        if q:
+        if quite_connection:
             self.quite()
 
     def quite(self):
