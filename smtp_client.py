@@ -58,15 +58,16 @@ class SmtpClientService:
             if settings.SES_CONFIGURATION_SET:
                 message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
 
-        # The main body is just another attachment
-        body = MIMEText(mail.html_msg.encode('utf-8'), 'html', 'utf-8')
-        message.attach(body)
+        message.attach(self._create_main_body_message(mail.html_msg))
 
         if mail.filepath:
             file_attribute = self._create_file_attachment(mail.filepath, mail.filename)
             message.attach(file_attribute)
 
         return message
+
+    def _create_main_body_message(self, html_msg):
+        return MIMEText(html_msg.encode('utf-8'), 'html', 'utf-8')
 
     def _create_file_attachment(self, filepath, filename):
         file = open(filepath, 'rb')
