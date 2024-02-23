@@ -39,35 +39,9 @@ class SmtpClientService:
         smtp_connection.login(self.username, self.password)
 
     def send_email(self, mail: Email, quite_connection=True):
-        # Create a text/plain message
         messages = []
         for _, receiver in enumerate(mail.receivers):
-            message = MIMEMultipart()
-            message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
-            message['From'] = self.from_email
-            message['To'] = receiver
-
-            # Add AWS headers
-            if self.provider == 'AWS':
-                if settings.SES_CONFIGURATION_SET:
-                    message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
-
-            # The main body is just another attachment
-            body = MIMEText(mail.html_msg.encode('utf-8'), 'html', 'utf-8')
-            message.attach(body)
-
-            if mail.filepath:
-                # PDF attachment
-                file = open(mail.filepath, 'rb')
-                file_attribute = MIMEApplication(file.read(), _subtype="csv")
-                file.close()
-                file_attribute.add_header(
-                    'Content-Disposition',
-                    'attachment',
-                    filename=mail.filename
-                )
-                message.attach(file_attribute)
-            messages.append(message)
+            messages.append(self._create_message(mail, receiver))
 
         # send via Gmail server
         i = 0
@@ -87,6 +61,32 @@ class SmtpClientService:
 
         if quite_connection:
             self.quite()
+
+    def _create_message(self, mail, receiver):
+        message = MIMEMultipart()
+        message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
+        message['From'] = self.from_email
+        message['To'] = receiver
+        # Add AWS headers
+        if self.provider == 'AWS':
+            if settings.SES_CONFIGURATION_SET:
+                message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
+        # The main body is just another attachment
+        body = MIMEText(mail.html_msg.encode('utf-8'), 'html', 'utf-8')
+        message.attach(body)
+        if mail.filepath:
+            # PDF attachment
+            file = open(mail.filepath, 'rb')
+            file_attribute = MIMEApplication(file.read(), _subtype="csv")
+            file.close()
+            file_attribute.add_header(
+                'Content-Disposition',
+                'attachment',
+                filename=mail.filename
+            )
+            message.attach(file_attribute)
+
+        return message
 
     def quite(self):
         self.smtp_connection.quit()
