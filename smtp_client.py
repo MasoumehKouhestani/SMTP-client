@@ -13,20 +13,25 @@ from models import Email
 
 class SmtpClientService:
 
-    def __init__(self, from_email=settings.DEFAULT_FROM_EMAIL, reply_email=None, config=settings.DEFAULT_EMAIL_CONFIG):
+    def __init__(
+        self,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        reply_email=None,
+        config=settings.DEFAULT_EMAIL_CONFIG,
+    ):
         self.from_email = from_email
         self.reply_email = reply_email
-        self.provider = config.get('provider')
-        self.max_retry = config.get('max_retry')
+        self.provider = config.get("provider")
+        self.max_retry = config.get("max_retry")
 
-        self.username = config['username']
-        self.password = config['password']
+        self.username = config["username"]
+        self.password = config["password"]
 
         self.smtp_connection = self._connect(config)
 
     def _connect(self, config):
-        smtp_connection = smtplib.SMTP(config['host'], config['port'])
-        if config.get('tls', True):
+        smtp_connection = smtplib.SMTP(config["host"], config["port"])
+        if config.get("tls", True):
             smtp_connection.starttls()
         self._authenticate(smtp_connection)
 
@@ -45,15 +50,15 @@ class SmtpClientService:
 
     def _create_message(self, mail, receiver):
         message = MIMEMultipart()
-        message['Subject'] = email.header.Header(force_str(mail.subject), 'utf-8')
-        message['From'] = self.from_email
-        message['To'] = receiver
+        message["Subject"] = email.header.Header(force_str(mail.subject), "utf-8")
+        message["From"] = self.from_email
+        message["To"] = receiver
         if self.reply_email:
-            message.add_header('reply-to', self.reply_email)
+            message.add_header("reply-to", self.reply_email)
         # Add AWS headers
-        if self.provider == 'AWS':
+        if self.provider == "AWS":
             if settings.SES_CONFIGURATION_SET:
-                message['X-SES-CONFIGURATION-SET'] = settings.SES_CONFIGURATION_SET
+                message["X-SES-CONFIGURATION-SET"] = settings.SES_CONFIGURATION_SET
 
         message.attach(self._create_main_body_message(mail.html_msg))
         if mail.filepath:
@@ -61,16 +66,14 @@ class SmtpClientService:
         return message
 
     def _create_main_body_message(self, html_msg):
-        return MIMEText(html_msg.encode('utf-8'), 'html', 'utf-8')
+        return MIMEText(html_msg.encode("utf-8"), "html", "utf-8")
 
     def _create_file_attachment(self, filepath, filename):
-        file = open(filepath, 'rb')
+        file = open(filepath, "rb")
         file_attribute = MIMEApplication(file.read(), _subtype="csv")
         file.close()
         file_attribute.add_header(
-            'Content-Disposition',
-            'attachment',
-            filename=filename
+            "Content-Disposition", "attachment", filename=filename
         )
         return file_attribute
 
@@ -79,7 +82,9 @@ class SmtpClientService:
         for i in range(len(messages)):
             message = messages[i]
             try:
-                self.smtp_connection.sendmail(message['From'], [message['To']], message.as_string())
+                self.smtp_connection.sendmail(
+                    message["From"], [message["To"]], message.as_string()
+                )
                 current_retry = 0
             except smtplib.SMTPResponseException as e:
                 if e.smtp_code == 454 and current_retry < self.max_retry:

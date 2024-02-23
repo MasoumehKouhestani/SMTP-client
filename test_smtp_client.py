@@ -1,4 +1,3 @@
-import csv
 from unittest import TestCase
 
 from models import Email
@@ -7,8 +6,8 @@ from imap_tools import MailBoxUnencrypted
 from imap_tools.message import MailMessage
 
 
-def read_last_mail(username, password, host='localhost', port=3143) -> MailMessage:
-    with (MailBoxUnencrypted(host, port).login(username, password) as mailbox):
+def read_last_mail(username, password, host="localhost", port=3143) -> MailMessage:
+    with MailBoxUnencrypted(host, port).login(username, password) as mailbox:
         return list(mailbox.fetch())[-1]
 
 
@@ -32,8 +31,8 @@ class SMTPClientTest(TestCase):
         self.assertEqual(html_msg, mail.html)
         self.assertEqual(1, len(mail.attachments))
         self.assertEqual(file_name, mail.attachments[0].filename)
-        file = open(file_path, 'r')
-        file_content = ''.join(file.readlines())
-        self.assertEqual(bytes(file_content, 'utf-8'), mail.attachments[0].payload)
-        self.assertEqual(1, len(mail.headers.get('reply-to')))
-        self.assertEqual(reply_email, mail.headers.get('reply-to')[0])
+        file = open(file_path, "r")
+        file_content = "".join(file.readlines())
+        self.assertEqual(bytes(file_content, "utf-8"), mail.attachments[0].payload)
+        self.assertEqual(1, len(mail.headers.get("reply-to")))
+        self.assertEqual(reply_email, mail.headers.get("reply-to")[0])
