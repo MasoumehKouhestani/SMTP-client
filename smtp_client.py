@@ -1,5 +1,6 @@
 import email
 import smtplib
+from dataclasses import dataclass
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -8,7 +9,14 @@ from time import sleep
 from django.conf import settings
 from django.utils.encoding import force_str
 
-from models import Email
+
+@dataclass
+class Email:
+    subject: str
+    receivers: list[str]
+    html_msg: str
+    filepath: str | None = None
+    filename: str | None = None
 
 
 class SmtpClientService:
@@ -42,17 +50,12 @@ class SmtpClientService:
         smtp_connection = smtplib.SMTP(config["host"], config["port"])
         if config.get("tls", True):
             smtp_connection.starttls()
-        self._authenticate(smtp_connection)
+        smtp_connection.login(self.username, self.password)
 
         return smtp_connection
 
-    def _authenticate(self, smtp_connection):
-        smtp_connection.login(self.username, self.password)
-
-    def send_email(self, mail: Email, quite_connection=True):
-        messages = []
-        for _, receiver in enumerate(mail.receivers):
-            messages.append(self._create_message(mail, receiver))
+    def send_email(self, mail, quite_connection=True):
+        messages = [self._create_message(mail, receiver) for receiver in mail.receivers]
         self._send_mail(messages)
         if quite_connection:
             self.quite()
