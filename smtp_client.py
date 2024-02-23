@@ -39,11 +39,6 @@ class SmtpClientService:
         smtp_connection.login(self.username, self.password)
 
     def send_email(self, mail: Email, quite_connection=True):
-        # create the meta data
-        meta_data = mail.meta_data or []
-        if type(meta_data) not in (tuple, list):
-            meta_data = [meta_data]
-
         # Create a text/plain message
         msgs = []
         for i, addr in enumerate(mail.receivers):
