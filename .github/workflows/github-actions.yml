@@ -1,5 +1,5 @@
 name: GitHub Actions
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+
 on:
   push:
     branches:
@@ -57,5 +57,5 @@ jobs:
           pip install -r requirements.dev.txt
 
       - name: Run tests
-        run: python manage.py tests
+        run: python manage.py test
 
