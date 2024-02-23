@@ -12,6 +12,7 @@ from models import Email
 
 
 class SmtpClientService:
+    required_config_fields = ['username', 'password', 'host', 'port']
 
     def __init__(
         self,
@@ -19,6 +20,9 @@ class SmtpClientService:
         reply_email=None,
         config=settings.DEFAULT_EMAIL_CONFIG,
     ):
+
+        self._check_required_configs(config)
+
         self.from_email = from_email
         self.reply_email = reply_email
         self.provider = config.get("provider")
@@ -28,6 +32,11 @@ class SmtpClientService:
         self.password = config["password"]
 
         self.smtp_connection = self._connect(config)
+
+    def _check_required_configs(self, config):
+        for field in self.required_config_fields:
+            if not config.get(field):
+                raise ValueError('Missing required config field: {}'.format(field))
 
     def _connect(self, config):
         smtp_connection = smtplib.SMTP(config["host"], config["port"])
