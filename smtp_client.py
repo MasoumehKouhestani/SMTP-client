@@ -99,7 +99,7 @@ class SmtpClientService:
         for i in range(len(messages)):
             message = messages[i]
             try:
-                self.smtp_connection.sendmail(message["From"], [message["To"]], message.as_string())
+                self.smtp_connection.send_message(message, message["From"], [message["To"]])
                 current_retry = 0
             except smtplib.SMTPResponseException as e:
                 if e.smtp_code == 454 and current_retry < self.max_retry:
