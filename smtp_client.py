@@ -43,21 +43,7 @@ class SmtpClientService:
         for _, receiver in enumerate(mail.receivers):
             messages.append(self._create_message(mail, receiver))
 
-        # send via Gmail server
-        i = 0
-        current_retry = 0
-        while i < len(messages):
-            message = messages[i]
-            try:
-                self.smtp_connection.sendmail(message['From'], [message['To']], message.as_string())
-                current_retry = 0
-                i += 1
-            except smtplib.SMTPResponseException as e:
-                if e.smtp_code == 454 and current_retry < self.max_retry:
-                    current_retry += 1
-                    sleep(1)
-                    continue
-                raise e
+        self._send_mail(messages)
 
         if quite_connection:
             self.quite()
@@ -87,6 +73,20 @@ class SmtpClientService:
             message.attach(file_attribute)
 
         return message
+
+    def _send_mail(self, messages):
+        current_retry = 0
+        for i in range(len(messages)):
+            message = messages[i]
+            try:
+                self.smtp_connection.sendmail(message['From'], [message['To']], message.as_string())
+                current_retry = 0
+            except smtplib.SMTPResponseException as e:
+                if e.smtp_code == 454 and current_retry < self.max_retry:
+                    current_retry += 1
+                    sleep(1)
+                    continue
+                raise e
 
     def quite(self):
         self.smtp_connection.quit()
