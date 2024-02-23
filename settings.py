@@ -29,7 +29,6 @@ DEBUG = True
 INSTALLED_APPS = [
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -38,11 +37,15 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+DEFAULT_FROM_EMAIL = "sender@example.com"
+
 DEFAULT_EMAIL_CONFIG = {
-    'provider': 'Test',
-    'username': 'admin',
-    'password': 'admin',
+    'provider': "AWS",
+    'username': 'user',
+    'password': 'password',
     'host': 'localhost',
-    'port': 1025,
-    'tls': True,
+    'port': 3025,
+    'tls': False,
 }
+
+SES_CONFIGURATION_SET = "example_config_name"
