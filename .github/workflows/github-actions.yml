@@ -1,0 +1,42 @@
+name: GitHub Actions
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+  test:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+
+    services:
+      greenmail:
+          image: greenmail/standalone
+          ports:
+            - 3025:3025
+            - 3110:3110
+            - 3143:3143
+            - 3465:3465
+            - 3993:3993
+            - 3995:3995
+            - 8080:8080
+          env:
+            GREENMAIL_OPTS: '-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled -Dgreenmail.verbose'
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Run Docker command
+        run: docker ps -a
+
