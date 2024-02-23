@@ -12,23 +12,26 @@ def read_last_mail(username, password, host="localhost", port=3143) -> MailMessa
 
 
 class SMTPClientTest(TestCase):
+
+    def setUp(self):
+        self.subject = "test subject"
+        self.receiver = "receiver@example.com"
+        self.html_msg = "sample message"
+
     def test_smtp_client(self):
         reply_email = "another@mail.com"
         service = SmtpClientService(reply_email=reply_email)
 
-        subject = "test subject"
-        receiver = "receiver@example.com"
-        html_msg = "sample message"
         file_path = "test_data/test.csv"
         file_name = "test.csv"
-        mail = Email(subject, [receiver], html_msg, file_path, file_name)
+        mail = Email(self.subject, [self.receiver], self.html_msg, file_path, file_name)
         service.send_email(mail)
 
-        mail = read_last_mail(username=receiver, password=receiver)
+        mail = read_last_mail(username=self.receiver, password=self.receiver)
 
         self.assertIsNotNone(mail)
-        self.assertEqual(subject, mail.subject)
-        self.assertEqual(html_msg, mail.html)
+        self.assertEqual(self.subject, mail.subject)
+        self.assertEqual(self.html_msg, mail.html)
         self.assertEqual(1, len(mail.attachments))
         self.assertEqual(file_name, mail.attachments[0].filename)
         file = open(file_path, "r")
