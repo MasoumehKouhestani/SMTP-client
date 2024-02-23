@@ -96,8 +96,7 @@ class SmtpClientService:
 
     def _send_mail(self, messages):
         current_retry = 0
-        for i in range(len(messages)):
-            message = messages[i]
+        for message in messages:
             try:
                 self.smtp_connection.send_message(message, message["From"], [message["To"]])
                 current_retry = 0
