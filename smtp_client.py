@@ -26,7 +26,7 @@ class SmtpClientService:
         self.from_email = from_email
         self.reply_email = reply_email
         self.provider = config.get("provider")
-        self.max_retry = config.get("max_retry")
+        self.max_retry = config.get("max_retry", 2)
 
         self.username = config["username"]
         self.password = config["password"]
