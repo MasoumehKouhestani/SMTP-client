@@ -20,7 +20,7 @@ class Email:
 
 
 class SmtpClientService:
-    required_config_fields = ['username', 'password', 'host', 'port']
+    required_config_fields = ["username", "password", "host", "port"]
 
     def __init__(
         self,
@@ -44,7 +44,7 @@ class SmtpClientService:
     def _check_required_configs(self, config):
         for field in self.required_config_fields:
             if not config.get(field):
-                raise ValueError('Missing required config field: {}'.format(field))
+                raise ValueError("Missing required config field: {}".format(field))
 
     def _connect(self, config):
         smtp_connection = smtplib.SMTP(config["host"], config["port"])
@@ -87,9 +87,7 @@ class SmtpClientService:
         with open(filepath, "rb") as file:
             file_attribute = MIMEApplication(file.read(), _subtype="csv")
 
-        file_attribute.add_header(
-            "Content-Disposition", "attachment", filename=filename
-        )
+        file_attribute.add_header("Content-Disposition", "attachment", filename=filename)
         return file_attribute
 
     def _send_message(self, message):

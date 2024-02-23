@@ -1,0 +1,26 @@
+[project]
+name = "smtp_client"
+version = "0.0.1"
+description = "Simple SMTP client"
+requires-python = ">=3.10"
+
+[tool.black]
+line-length = 120
+force-exclude = '''
+(
+ venv
+ | .idea
+ | test_data
+)
+'''
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # Pyflakes
+    "I"     # isort
+]
+
