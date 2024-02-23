@@ -54,8 +54,8 @@ class SmtpClientService:
 
         return smtp_connection
 
-    def send_email(self, mail, quite_connection=True):
-        messages = [self._create_message(mail, receiver) for receiver in mail.receivers]
+    def send_email(self, mail, quite_connection=True, meta_data=None):
+        messages = [self._create_message(mail, receiver, meta_data) for receiver in mail.receivers]
         self._send_mail(messages)
         if quite_connection:
             self.quite()
