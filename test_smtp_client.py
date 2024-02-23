@@ -39,3 +39,16 @@ class SMTPClientTest(TestCase):
         self.assertEqual(bytes(file_content, "utf-8"), mail.attachments[0].payload)
         self.assertEqual(1, len(mail.headers.get("reply-to")))
         self.assertEqual(reply_email, mail.headers.get("reply-to")[0])
+
+    def test_smtp_client_with_no_attachments(self):
+        service = SmtpClientService()
+
+        mail = Email(self.subject, [self.receiver], self.html_msg)
+        service.send_email(mail)
+
+        mail = read_last_mail(username=self.receiver, password=self.receiver)
+
+        self.assertIsNotNone(mail)
+        self.assertEqual(self.subject, mail.subject)
+        self.assertEqual(self.html_msg, mail.html)
+        self.assertEqual(0, len(mail.attachments))
